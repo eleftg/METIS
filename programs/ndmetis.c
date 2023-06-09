@@ -11,10 +11,12 @@
  * $Id: ndmetis.c 14362 2013-05-21 21:35:23Z karypis $
  *
  */
-
+#include <metis_config.h>
 #include "metisbin.h"
 
-
+#ifdef HAVE_SYS_RESOURCE_H
+    #include <sys/resource.h>
+#endif
 
 /*************************************************************************/
 /*! Let the game begin! */
@@ -47,7 +49,7 @@ int main(int argc, char *argv[])
 
   /* Check if the graph is contiguous */
   if (graph->ncon != 1) {
-    printf("***The input graph contains %"PRIDX" constraints..\n" 
+    printf("***The input graph contains %"PRIDX" constraints..\n"
            "***Ordering requires a graph with one constraint.\n", graph->ncon);
     exit(0);
   }
@@ -75,7 +77,7 @@ int main(int argc, char *argv[])
   gk_malloc_init();
   gk_startcputimer(params->parttimer);
 
-  status = METIS_NodeND(&graph->nvtxs, graph->xadj, graph->adjncy, graph->vwgt, 
+  status = METIS_NodeND(&graph->nvtxs, graph->xadj, graph->adjncy, graph->vwgt,
                options, perm, iperm);
 
   gk_stopcputimer(params->parttimer);
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
     if (!params->nooutput) {
       /* Write the solution */
       gk_startcputimer(params->iotimer);
-      WritePermutation(params->filename, iperm, graph->nvtxs); 
+      WritePermutation(params->filename, iperm, graph->nvtxs);
       gk_stopcputimer(params->iotimer);
     }
 
@@ -103,7 +105,7 @@ int main(int argc, char *argv[])
 
   FreeGraph(&graph);
   gk_free((void **)&perm, &iperm, LTERM);
-  gk_free((void **)&params->filename, &params->tpwgtsfile, &params->tpwgts, 
+  gk_free((void **)&params->filename, &params->tpwgtsfile, &params->tpwgts,
       &params->ubvec, &params, LTERM);
 
 }
@@ -113,33 +115,33 @@ int main(int argc, char *argv[])
 /*! This function prints run parameters */
 /*************************************************************************/
 void NDPrintInfo(params_t *params, graph_t *graph)
-{ 
+{
   printf("******************************************************************************\n");
   printf("%s", METISTITLE);
   printf(" (HEAD: %s, Built on: %s, %s)\n", SVNINFO, __DATE__, __TIME__);
-  printf(" size of idx_t: %zubits, real_t: %zubits, idx_t *: %zubits\n", 
+  printf(" size of idx_t: %zubits, real_t: %zubits, idx_t *: %zubits\n",
       8*sizeof(idx_t), 8*sizeof(real_t), 8*sizeof(idx_t *));
   printf("\n");
   printf("Graph Information -----------------------------------------------------------\n");
-  printf(" Name: %s, #Vertices: %"PRIDX", #Edges: %"PRIDX"\n", 
+  printf(" Name: %s, #Vertices: %"PRIDX", #Edges: %"PRIDX"\n",
       params->filename, graph->nvtxs, graph->nedges/2);
 
   printf("\n");
   printf("Options ---------------------------------------------------------------------\n");
   printf(" ctype=%s, rtype=%s, iptype=%s, seed=%"PRIDX", dbglvl=%"PRIDX"\n",
-      ctypenames[params->ctype], rtypenames[params->rtype], 
+      ctypenames[params->ctype], rtypenames[params->rtype],
       iptypenames[params->iptype], params->seed, params->dbglvl);
 
   printf(" ufactor=%.3f, pfactor=%.2f, no2hop=%s, ccorder=%s, compress=%s\n",
-      I2RUBFACTOR(params->ufactor), 
+      I2RUBFACTOR(params->ufactor),
       0.1*params->pfactor,
-      (params->no2hop   ? "YES" : "NO"), 
-      (params->ccorder  ? "YES" : "NO"), 
-      (params->compress ? "YES" : "NO") 
+      (params->no2hop   ? "YES" : "NO"),
+      (params->ccorder  ? "YES" : "NO"),
+      (params->compress ? "YES" : "NO")
       );
 
   printf(" ondisk=%s, nooutput=%s\n",
-      (params->ondisk   ? "YES" : "NO"), 
+      (params->ondisk   ? "YES" : "NO"),
       (params->nooutput ? "YES" : "NO")
       );
 
@@ -153,9 +155,9 @@ void NDPrintInfo(params_t *params, graph_t *graph)
 /*************************************************************************/
 /*! This function does any post-ordering reporting */
 /*************************************************************************/
-void NDReportResults(params_t *params, graph_t *graph, idx_t *perm, 
+void NDReportResults(params_t *params, graph_t *graph, idx_t *perm,
          idx_t *iperm)
-{ 
+{
   size_t maxlnz, opc;
 
   gk_startcputimer(params->reporttimer);
@@ -172,7 +174,7 @@ void NDReportResults(params_t *params, graph_t *graph, idx_t *perm,
   printf("\nMemory Information ----------------------------------------------------------\n");
   printf("  Max memory used:\t\t %7.3"PRREAL" MB\n", (real_t)(params->maxmemory/(1024.0*1024.0)));
 
-#ifndef MACOS
+#ifdef HAVE_SYS_RESOURCE_H
   {
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);

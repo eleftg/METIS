@@ -17,47 +17,52 @@ option(GKRAND "enable GKRAND support" OFF)
 # Add compiler flags.
 if(MSVC)
   set(GK_COPTS "/Ox")
-  set(GK_COPTIONS "-DWIN32 -DMSC -D_CRT_SECURE_NO_DEPRECATE -DUSE_GKREGEX")
+  set(GK_COPTIONS "-DWIN32 -DMSC -D_CRT_SECURE_NO_WARNINGS -DUSE_GKREGEX")
 elseif(MINGW)
   set(GK_COPTS "-DUSE_GKREGEX")
 else()
   set(GK_COPTIONS "-DLINUX -D_FILE_OFFSET_BITS=64")
-endif(MSVC)
+endif()
+
 if(CYGWIN)
   set(GK_COPTIONS "${GK_COPTIONS} -DCYGWIN")
-endif(CYGWIN)
-if(CMAKE_COMPILER_IS_GNUCC)
-# GCC opts.
-  set(GK_COPTIONS "${GK_COPTIONS} -std=c99 -fno-strict-aliasing")
-if(VALGRIND)
-  set(GK_COPTIONS "${GK_COPTIONS} -march=x86-64 -mtune=generic")
-else()
-# -march=native is not a valid flag on PPC:
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "power|ppc|powerpc|ppc64|powerpc64" OR (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc|ppc64"))
-  set(GK_COPTIONS "${GK_COPTIONS} -mtune=native")
-else()
-  set(GK_COPTIONS "${GK_COPTIONS} -march=native")
-endif()
-endif(VALGRIND)
-  if(NOT MINGW)
-      set(GK_COPTIONS "${GK_COPTIONS} -fPIC")
-  endif(NOT MINGW)
-# GCC warnings.
-  set(GK_COPTIONS "${GK_COPTIONS} -Werror -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")
-elseif(${CMAKE_C_COMPILER_ID} MATCHES "Sun")
-# Sun insists on -xc99.
-  set(GK_COPTIONS "${GK_COPTIONS} -xc99")
-endif(CMAKE_COMPILER_IS_GNUCC)
-
-if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-  set(GK_COPTIONS "${GK_COPTIONS} -xHost")
-  #  set(GK_COPTIONS "${GK_COPTIONS} -fast")
 endif()
 
-# Add support for MacOS items 
+if(CMAKE_C_COMPILER_ID MATCHES GNU)
+    # GCC opts.
+    set(GK_COPTIONS "${GK_COPTIONS} -std=c99 -fno-strict-aliasing")
+    if(VALGRIND)
+        set(GK_COPTIONS "${GK_COPTIONS} -march=x86-64 -mtune=generic")
+    else()
+        # -march=native is not a valid flag on PPC:
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "power|ppc|powerpc|ppc64|powerpc64" OR (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc|ppc64"))
+        set(GK_COPTIONS "${GK_COPTIONS} -mtune=native")
+        else()
+        set(GK_COPTIONS "${GK_COPTIONS} -march=native")
+        endif()
+    endif()
+    if(NOT MINGW)
+        set(GK_COPTIONS "${GK_COPTIONS} -fPIC")
+    endif()
+    # GCC warnings.
+    set(GK_COPTIONS "${GK_COPTIONS} -Werror -Wall -pedantic -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unknown-pragmas -Wno-unused-label")
+elseif(CMAKE_C_COMPILER_ID MATCHES Sun)
+    # Sun insists on -xc99.
+    set(GK_COPTIONS "${GK_COPTIONS} -xc99")
+endif()
+
+if(CMAKE_C_COMPILER_ID MATCHES Intel)
+    if(WIN32)
+        set(GK_COPTIONS "${GK_COPTIONS} /QxHost /Qstd=c99")
+    else()
+        set(GK_COPTIONS "${GK_COPTIONS} -xHost -std=c99")
+    endif()
+endif()
+
+# Add support for MacOS items
 if(APPLE)
   set(GK_COPTIONS "${GK_COPTIONS} -DMACOS")
-endif(APPLE)
+endif()
 
 # Find OpenMP if it is requested.
 if(OPENMP)
@@ -67,7 +72,7 @@ if(OPENMP)
   else()
     message(WARNING "OpenMP was requested but support was not found")
   endif(OPENMP_FOUND)
-endif(OPENMP)
+endif()
 
 
 # Add various definitions.
@@ -78,50 +83,46 @@ else()
   set(GK_COPTS "-O3")
 endif(GDB)
 
-
 if(DEBUG)
   set(GK_COPTS "-Og")
   set(GK_COPTIONS "${GK_COPTIONS} -DDEBUG")
-endif(DEBUG)
+endif()
 
 if(GPROF)
   set(GK_COPTS "-pg")
-endif(GPROF)
+endif()
 
 if(NOT ASSERT)
   set(GK_COPTIONS "${GK_COPTIONS} -DNDEBUG")
-endif(NOT ASSERT)
+endif()
 
 if(NOT ASSERT2)
   set(GK_COPTIONS "${GK_COPTIONS} -DNDEBUG2")
-endif(NOT ASSERT2)
-
+endif()
 
 # Add various options
 if(PCRE)
   set(GK_COPTIONS "${GK_COPTIONS} -D__WITHPCRE__")
-endif(PCRE)
+endif()
 
 if(GKREGEX)
   set(GK_COPTIONS "${GK_COPTIONS} -DUSE_GKREGEX")
-endif(GKREGEX)
+endif()
 
 if(GKRAND)
   set(GK_COPTIONS "${GK_COPTIONS} -DUSE_GKRAND")
-endif(GKRAND)
-
+endif()
 
 # Check for features.
 check_include_file(execinfo.h HAVE_EXECINFO_H)
 if(HAVE_EXECINFO_H)
   set(GK_COPTIONS "${GK_COPTIONS} -DHAVE_EXECINFO_H")
-endif(HAVE_EXECINFO_H)
+endif()
 
 check_function_exists(getline HAVE_GETLINE)
 if(HAVE_GETLINE)
   set(GK_COPTIONS "${GK_COPTIONS} -DHAVE_GETLINE")
-endif(HAVE_GETLINE)
-
+endif()
 
 # Custom check for TLS.
 if(MSVC)
@@ -145,4 +146,3 @@ endif()
 
 # Finally set the official C flags.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GK_COPTIONS} ${GK_COPTS}")
-

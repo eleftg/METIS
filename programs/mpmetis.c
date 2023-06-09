@@ -11,10 +11,12 @@
  * $Id: mpmetis.c 14362 2013-05-21 21:35:23Z karypis $
  *
  */
-
+#include <metis_config.h>
 #include "metisbin.h"
 
-
+#ifdef HAVE_SYS_RESOURCE_H
+    #include <sys/resource.h>
+#endif
 
 /*************************************************************************/
 /*! Let the game begin! */
@@ -68,14 +70,14 @@ int main(int argc, char *argv[])
 
   switch (params->gtype) {
     case METIS_GTYPE_DUAL:
-      status = METIS_PartMeshDual(&mesh->ne, &mesh->nn, mesh->eptr, mesh->eind, 
-                   mesh->ewgt, NULL, &params->ncommon, &params->nparts, 
+      status = METIS_PartMeshDual(&mesh->ne, &mesh->nn, mesh->eptr, mesh->eind,
+                   mesh->ewgt, NULL, &params->ncommon, &params->nparts,
                    params->tpwgts, options, &objval, epart, npart);
       break;
 
     case METIS_GTYPE_NODAL:
-      status = METIS_PartMeshNodal(&mesh->ne, &mesh->nn, mesh->eptr, mesh->eind, 
-                   NULL, NULL, &params->nparts, params->tpwgts, options, &objval, 
+      status = METIS_PartMeshNodal(&mesh->ne, &mesh->nn, mesh->eptr, mesh->eind,
+                   NULL, NULL, &params->nparts, params->tpwgts, options, &objval,
                    epart, npart);
       break;
   }
@@ -102,7 +104,7 @@ int main(int argc, char *argv[])
 
   FreeMesh(&mesh);
   gk_free((void **)&epart, &npart, LTERM);
-  gk_free((void **)&params->filename, &params->tpwgtsfile, &params->tpwgts, 
+  gk_free((void **)&params->filename, &params->tpwgtsfile, &params->tpwgts,
       &params->ubvecstr, &params->ubvec, &params, LTERM);
 
 }
@@ -112,22 +114,22 @@ int main(int argc, char *argv[])
 /*! This function prints run parameters */
 /*************************************************************************/
 void MPPrintInfo(params_t *params, mesh_t *mesh)
-{ 
+{
   if (params->ufactor == -1) {
     if (params->ptype == METIS_PTYPE_KWAY)
       params->ufactor = KMETIS_DEFAULT_UFACTOR;
-    else 
+    else
       params->ufactor = PMETIS_DEFAULT_UFACTOR;
   }
 
   printf("******************************************************************************\n");
   printf("%s", METISTITLE);
   printf(" (HEAD: %s, Built on: %s, %s)\n", SVNINFO, __DATE__, __TIME__);
-  printf(" size of idx_t: %zubits, real_t: %zubits, idx_t *: %zubits\n", 
+  printf(" size of idx_t: %zubits, real_t: %zubits, idx_t *: %zubits\n",
       8*sizeof(idx_t), 8*sizeof(real_t), 8*sizeof(idx_t *));
   printf("\n");
   printf("Mesh Information ------------------------------------------------------------\n");
-  printf(" Name: %s, #Elements: %"PRIDX", #Nodes: %"PRIDX", #Parts: %"PRIDX"\n", 
+  printf(" Name: %s, #Elements: %"PRIDX", #Nodes: %"PRIDX", #Parts: %"PRIDX"\n",
       params->filename, mesh->ne, mesh->nn, params->nparts);
   if (mesh->ncon > 1)
     printf("  Balancing Constraints: %"PRIDX"\n", mesh->ncon);
@@ -135,21 +137,21 @@ void MPPrintInfo(params_t *params, mesh_t *mesh)
   printf("\n");
   printf("Options ---------------------------------------------------------------------\n");
   printf(" ptype=%s, objtype=%s, ctype=%s, rtype=%s, iptype=%s\n",
-      ptypenames[params->ptype], objtypenames[params->objtype], ctypenames[params->ctype], 
+      ptypenames[params->ptype], objtypenames[params->objtype], ctypenames[params->ctype],
       rtypenames[params->rtype], iptypenames[params->iptype]);
 
   printf(" dbglvl=%"PRIDX", ufactor=%.3f, minconn=%s, contig=%s, nooutput=%s\n",
       params->dbglvl,
       I2RUBFACTOR(params->ufactor),
-      (params->minconn  ? "YES" : "NO"), 
+      (params->minconn  ? "YES" : "NO"),
       (params->contig   ? "YES" : "NO"),
       (params->nooutput ? "YES" : "NO")
       );
 
-  printf(" seed=%"PRIDX", niter=%"PRIDX", ncuts=%"PRIDX"\n", 
+  printf(" seed=%"PRIDX", niter=%"PRIDX", ncuts=%"PRIDX"\n",
       params->seed, params->niter, params->ncuts);
 
-  printf(" gtype=%s, ncommon=%"PRIDX", niter=%"PRIDX", ncuts=%"PRIDX"\n", 
+  printf(" gtype=%s, ncommon=%"PRIDX", niter=%"PRIDX", ncuts=%"PRIDX"\n",
       gtypenames[params->gtype], params->ncommon, params->niter, params->ncuts);
 
   printf("\n");
@@ -169,13 +171,13 @@ void MPPrintInfo(params_t *params, mesh_t *mesh)
 /*************************************************************************/
 void MPReportResults(params_t *params, mesh_t *mesh, idx_t *epart, idx_t *npart,
          idx_t objval)
-{ 
+{
 
   gk_startcputimer(params->reporttimer);
 
   /* ComputePartitionInfo(params, graph, part); */
 
-  printf(" - %s: %"PRIDX".\n\n", 
+  printf(" - %s: %"PRIDX".\n\n",
       (params->objtype == METIS_OBJTYPE_CUT ? "Edgecut" : "Volume"), objval);
 
   gk_stopcputimer(params->reporttimer);
@@ -188,7 +190,7 @@ void MPReportResults(params_t *params, mesh_t *mesh, idx_t *epart, idx_t *npart,
   printf("\nMemory Information ----------------------------------------------------------\n");
   printf("  Max memory used:\t\t %7.3"PRREAL" MB\n", (real_t)(params->maxmemory/(1024.0*1024.0)));
 
-#ifndef MACOS
+#ifdef HAVE_SYS_RESOURCE_H
   {
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);

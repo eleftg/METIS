@@ -1,0 +1,8 @@
+#ifndef CMAKE_METIS_CONFIG_H
+#define CMAKE_METIS_CONFIG_H
+
+#ifndef HAVE_SYS_RESOURCE_H
+  #cmakedefine HAVE_SYS_RESOURCE_H
+#endif
+
+#endif

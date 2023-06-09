@@ -11,10 +11,12 @@
  * $Id: gpmetis.c 14362 2013-05-21 21:35:23Z karypis $
  *
  */
-
+#include <metis_config.h>
 #include "metisbin.h"
 
-
+#ifdef HAVE_SYS_RESOURCE_H
+    #include <sys/resource.h>
+#endif
 
 /*************************************************************************/
 /*! Let the game begin! */
@@ -52,7 +54,7 @@ int main(int argc, char *argv[])
     for (i=0; i<graph->ncon; i++) {
       params->ubvec[i] = strtoreal(curptr, &newptr);
       if (curptr == newptr)
-        errexit("Error parsing entry #%"PRIDX" of ubvec [%s] (possibly missing).\n", 
+        errexit("Error parsing entry #%"PRIDX" of ubvec [%s] (possibly missing).\n",
             i, params->ubvecstr);
       curptr = newptr;
     }
@@ -94,16 +96,16 @@ int main(int argc, char *argv[])
 
   switch (params->ptype) {
     case METIS_PTYPE_RB:
-      status = METIS_PartGraphRecursive(&graph->nvtxs, &graph->ncon, graph->xadj, 
-                   graph->adjncy, graph->vwgt, graph->vsize, graph->adjwgt, 
-                   &params->nparts, params->tpwgts, params->ubvec, options, 
+      status = METIS_PartGraphRecursive(&graph->nvtxs, &graph->ncon, graph->xadj,
+                   graph->adjncy, graph->vwgt, graph->vsize, graph->adjwgt,
+                   &params->nparts, params->tpwgts, params->ubvec, options,
                    &objval, part);
       break;
 
     case METIS_PTYPE_KWAY:
-      status = METIS_PartGraphKway(&graph->nvtxs, &graph->ncon, graph->xadj, 
-                   graph->adjncy, graph->vwgt, graph->vsize, graph->adjwgt, 
-                   &params->nparts, params->tpwgts, params->ubvec, options, 
+      status = METIS_PartGraphKway(&graph->nvtxs, &graph->ncon, graph->xadj,
+                   graph->adjncy, graph->vwgt, graph->vsize, graph->adjwgt,
+                   &params->nparts, params->tpwgts, params->ubvec, options,
                    &objval, part);
       break;
 
@@ -126,7 +128,7 @@ int main(int argc, char *argv[])
     if (!params->nooutput) {
       /* Write the solution */
       gk_startcputimer(params->iotimer);
-      WritePartition(params->filename, part, graph->nvtxs, params->nparts); 
+      WritePartition(params->filename, part, graph->nvtxs, params->nparts);
       gk_stopcputimer(params->iotimer);
     }
 
@@ -138,7 +140,7 @@ int main(int argc, char *argv[])
     idx_t *old2new = imalloc(graph->nvtxs, "old2new");
 
     METIS_CacheFriendlyReordering(graph->nvtxs, graph->xadj, graph->adjncy, part, old2new);
-    WritePartition("ciperm", old2new, graph->nvtxs, params->nparts); 
+    WritePartition("ciperm", old2new, graph->nvtxs, params->nparts);
 
     gk_free((void **)&old2new, LTERM);
   }
@@ -147,7 +149,7 @@ int main(int argc, char *argv[])
 
   FreeGraph(&graph);
   gk_free((void **)&part, LTERM);
-  gk_free((void **)&params->filename, &params->tpwgtsfile, &params->tpwgts, 
+  gk_free((void **)&params->filename, &params->tpwgtsfile, &params->tpwgts,
       &params->ubvecstr, &params->ubvec, &params, LTERM);
 
 }
@@ -157,7 +159,7 @@ int main(int argc, char *argv[])
 /*! This function prints run parameters */
 /*************************************************************************/
 void GPPrintInfo(params_t *params, graph_t *graph)
-{ 
+{
   idx_t i;
 
   if (params->ufactor == -1) {
@@ -172,11 +174,11 @@ void GPPrintInfo(params_t *params, graph_t *graph)
   printf("******************************************************************************\n");
   printf("%s", METISTITLE);
   printf(" (HEAD: %s, Built on: %s, %s)\n", SVNINFO, __DATE__, __TIME__);
-  printf(" size of idx_t: %zubits, real_t: %zubits, idx_t *: %zubits\n", 
+  printf(" size of idx_t: %zubits, real_t: %zubits, idx_t *: %zubits\n",
       8*sizeof(idx_t), 8*sizeof(real_t), 8*sizeof(idx_t *));
   printf("\n");
   printf("Graph Information -----------------------------------------------------------\n");
-  printf(" Name: %s, #Vertices: %"PRIDX", #Edges: %"PRIDX", #Parts: %"PRIDX"\n", 
+  printf(" Name: %s, #Vertices: %"PRIDX", #Edges: %"PRIDX", #Parts: %"PRIDX"\n",
       params->filename, graph->nvtxs, graph->nedges/2, params->nparts);
   if (graph->ncon > 1)
     printf(" Balancing constraints: %"PRIDX"\n", graph->ncon);
@@ -184,14 +186,14 @@ void GPPrintInfo(params_t *params, graph_t *graph)
   printf("\n");
   printf("Options ---------------------------------------------------------------------\n");
   printf(" ptype=%s, objtype=%s, ctype=%s, rtype=%s, iptype=%s\n",
-      ptypenames[params->ptype], objtypenames[params->objtype], ctypenames[params->ctype], 
+      ptypenames[params->ptype], objtypenames[params->objtype], ctypenames[params->ctype],
       rtypenames[params->rtype], iptypenames[params->iptype]);
 
   printf(" dbglvl=%"PRIDX", ufactor=%.3f, no2hop=%s, minconn=%s, contig=%s\n",
       params->dbglvl,
       I2RUBFACTOR(params->ufactor),
-      (params->no2hop   ? "YES" : "NO"), 
-      (params->minconn  ? "YES" : "NO"), 
+      (params->no2hop   ? "YES" : "NO"),
+      (params->minconn  ? "YES" : "NO"),
       (params->contig   ? "YES" : "NO")
       );
 
@@ -200,7 +202,7 @@ void GPPrintInfo(params_t *params, graph_t *graph)
       (params->nooutput ? "YES" : "NO")
       );
 
-  printf(" seed=%"PRIDX", niparts=%"PRIDX", niter=%"PRIDX", ncuts=%"PRIDX"\n", 
+  printf(" seed=%"PRIDX", niparts=%"PRIDX", niter=%"PRIDX", ncuts=%"PRIDX"\n",
       params->seed, params->niparts, params->niter, params->ncuts);
 
   if (params->ubvec) {
@@ -226,7 +228,7 @@ void GPPrintInfo(params_t *params, graph_t *graph)
 /*! This function does any post-partitioning reporting */
 /*************************************************************************/
 void GPReportResults(params_t *params, graph_t *graph, idx_t *part, idx_t objval)
-{ 
+{
   gk_startcputimer(params->reporttimer);
   ComputePartitionInfo(params, graph, part);
 
@@ -239,7 +241,7 @@ void GPReportResults(params_t *params, graph_t *graph, idx_t *part, idx_t objval
   printf("\nMemory Information ----------------------------------------------------------\n");
   printf("  Max memory used:\t\t %7.3"PRREAL" MB\n", (real_t)(params->maxmemory/(1024.0*1024.0)));
 
-#ifndef MACOS
+#ifdef HAVE_SYS_RESOURCE_H
   {
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);
