@@ -11,7 +11,6 @@
  * $Id: mpmetis.c 14362 2013-05-21 21:35:23Z karypis $
  *
  */
-#include <metis_config.h>
 #include "metisbin.h"
 
 #ifdef HAVE_SYS_RESOURCE_H

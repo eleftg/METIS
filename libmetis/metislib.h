@@ -22,7 +22,12 @@
 
 
 #include <metis.h>
+#if IDXTYPEWIDTH == 32
 #include "rename.h"
+#elif IDXTYPEWIDTH == 64
+#include "rename_i64.h"
+#endif
+
 #include "gklib_defs.h"
 
 #include "defs.h"

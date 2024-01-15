@@ -1,25 +1,18 @@
 cmake_minimum_required(VERSION 3.15)
 project(METIS C)
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD_EXTENSIONS OFF)
+
 # Configure libmetis library.
 if(BUILD_SHARED_LIBS)
-  set(METIS_LIBRARY_TYPE SHARED)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-else()
-  set(METIS_LIBRARY_TYPE STATIC)
 endif()
 
 include(./conf/gkbuild.cmake)
 
-# METIS' custom options
-option(IDX64 "enable 64 bit ints" OFF)
 option(REAL64 "enable 64 bit floats (i.e. double)" OFF)
-
-if(IDX64)
-    set(idxtypewidth 64)
-else()
-    set(idxtypewidth 32)
-endif()
 
 if(REAL64)
     set(realtypewidth 64)
@@ -32,13 +25,6 @@ endif()
 configure_file(
     ${CMAKE_SOURCE_DIR}/conf/metis.h.in
     ${CMAKE_BINARY_DIR}/include/metis.h @ONLY
-)
-# verify presence of platform-specific headers on the system
-include(CheckIncludeFile)
-check_include_file(sys/resource.h HAVE_SYS_RESOURCE_H)
-configure_file(
-    ${CMAKE_SOURCE_DIR}/conf/metis_config.h.in
-    ${CMAKE_BINARY_DIR}/include/metis_config.h @ONLY
 )
 # Add include directories.
 # i.e., the -I equivalent

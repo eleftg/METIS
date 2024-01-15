@@ -30,7 +30,12 @@
  GCC does provides these definitions in stdint.h, but it may require some
  modifications on other architectures.
 --------------------------------------------------------------------------*/
-#define IDXTYPEWIDTH @idxtypewidth@
+// in this Frankenstein version of metis with both integer sizes linked
+// in simultaneously, the best way to control the index size is to
+// define the IDXTYPEWIDTH macro by means of a command-line flag
+// (e.g. -DIDXTYPEWIDTH=32 or /DIDXTYPEWIDTH=64).
+// #define IDXTYPEWIDTH 64
+// #define IDXTYPEWIDTH 32
 
 
 /*--------------------------------------------------------------------------
@@ -72,6 +77,10 @@ typedef __int64 int64_t;
 #define PRId64       "I64d"
 #define SCNd32       "ld"
 #define SCNd64       "I64d"
+#define INT32_MIN    ((int32_t)_I32_MIN)
+#define INT32_MAX    _I32_MAX
+#define INT64_MIN    ((int64_t)_I64_MIN)
+#define INT64_MAX    _I64_MAX
 #else
 #include <inttypes.h>
 #endif
@@ -176,6 +185,22 @@ typedef __int64 int64_t;
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#if IDXTYPEWIDTH == 64
+#define METIS_PartGraphRecursive METIS64_PartGraphRecursive
+#define METIS_PartGraphKway METIS64_PartGraphKway
+#define METIS_MeshToDual METIS64_MeshToDual
+#define METIS_MeshToNodal METIS64_MeshToNodal
+#define METIS_PartMeshNodal METIS64_PartMeshNodal
+#define METIS_PartMeshDual METIS64_PartMeshDual
+#define METIS_NodeND METIS64_NodeND
+#define METIS_Free METIS64_Free
+#define METIS_SetDefaultOptions METIS64_SetDefaultOptions
+#define METIS_NodeNDP METIS64_NodeNDP
+#define METIS_ComputeVertexSeparator METIS64_ComputeVertexSeparator
+#define METIS_NodeRefine METIS64_NodeRefine
+#define METIS_CacheFriendlyReordering METIS64_CacheFriendlyReordering
 #endif
 
 METIS_API(int) METIS_PartGraphRecursive(idx_t *nvtxs, idx_t *ncon, idx_t *xadj,

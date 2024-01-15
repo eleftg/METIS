@@ -28,7 +28,11 @@
 
 
 #include <metis.h>
+#if IDXTYPEWIDTH == 32
 #include "../libmetis/rename.h"
+#elif IDXTYPEWIDTH == 64
+#include "../libmetis/rename_i64.h"
+#endif
 #include "../libmetis/gklib_defs.h"
 #include "../libmetis/defs.h"
 #include "../libmetis/struct.h"
