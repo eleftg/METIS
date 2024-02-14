@@ -33,6 +33,7 @@
 
 /* coarsen.c */
 #define CoarsenGraph			libmetis__CoarsenGraph
+#define CoarsenGraphNlevels			libmetis__CoarsenGraphNlevels
 #define Match_RM                        libmetis__Match_RM
 #define Match_SHEM                      libmetis__Match_SHEM
 #define Match_2Hop                      libmetis__Match_2Hop
@@ -49,7 +50,8 @@
 #define PruneGraph			libmetis__PruneGraph
 
 /* contig.c */
-#define FindPartitionInducedComponents  libmetis__FindPartitionInducedComponents   
+#define ComputeBFSOrdering  libmetis__ComputeBFSOrdering
+#define FindPartitionInducedComponents  libmetis__FindPartitionInducedComponents
 #define IsConnected                     libmetis__IsConnected
 #define IsConnectedSubdomain            libmetis__IsConnectedSubdomain
 #define FindSepInducedComponents        libmetis__FindSepInducedComponents
@@ -104,6 +106,7 @@
 #define InitSeparator			libmetis__InitSeparator
 #define RandomBisection			libmetis__RandomBisection
 #define GrowBisection			libmetis__GrowBisection
+#define GrowBisectionNode2			libmetis__GrowBisectionNode2
 #define McRandomBisection               libmetis__McRandomBisection
 #define McGrowBisection                 libmetis__McGrowBisection
 #define GrowBisectionNode		libmetis__GrowBisectionNode
@@ -115,6 +118,8 @@
 /* kwayfm.c */
 #define Greedy_KWayOptimize		libmetis__Greedy_KWayOptimize
 #define Greedy_KWayCutOptimize		libmetis__Greedy_KWayCutOptimize
+#define Greedy_KWayEdgeStats		libmetis__Greedy_KWayEdgeStats
+#define Greedy_KWayEdgeCutOptimize		libmetis__Greedy_KWayEdgeCutOptimize
 #define Greedy_KWayVolOptimize          libmetis__Greedy_KWayVolOptimize
 #define Greedy_McKWayCutOptimize        libmetis__Greedy_McKWayCutOptimize
 #define Greedy_McKWayVolOptimize        libmetis__Greedy_McKWayVolOptimize
@@ -221,7 +226,7 @@
 #define ConstructMinCoverSeparator	libmetis__ConstructMinCoverSeparator
 
 /* sfm.c */
-#define FM_2WayNodeRefine2Sided         libmetis__FM_2WayNodeRefine2Sided 
+#define FM_2WayNodeRefine2Sided         libmetis__FM_2WayNodeRefine2Sided
 #define FM_2WayNodeRefine1Sided         libmetis__FM_2WayNodeRefine1Sided
 #define FM_2WayNodeBalance              libmetis__FM_2WayNodeBalance
 
@@ -241,7 +246,7 @@
 #define PrintTimers			libmetis__PrintTimers
 
 /* util.c */
-#define iargmax_strd                    libmetis__iargmax_strd 
+#define iargmax_strd                    libmetis__iargmax_strd
 #define iargmax_nrm                     libmetis__iargmax_nrm
 #define iargmax2_nrm                    libmetis__iargmax2_nrm
 #define rargmax2                        libmetis__rargmax2
@@ -249,7 +254,7 @@
 #define metis_rcode                     libmetis__metis_rcode
 
 /* wspace.c */
-#define AllocateWorkSpace               libmetis__AllocateWorkSpace                  
+#define AllocateWorkSpace               libmetis__AllocateWorkSpace
 #define AllocateRefinementWorkSpace     libmetis__AllocateRefinementWorkSpace
 #define FreeWorkSpace                   libmetis__FreeWorkSpace
 #define wspacemalloc                    libmetis__wspacemalloc

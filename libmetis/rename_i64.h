@@ -33,6 +33,7 @@
 
 /* coarsen.c */
 #define CoarsenGraph			libmetis64__CoarsenGraph
+#define CoarsenGraphNlevels			libmetis64__CoarsenGraphNlevels
 #define Match_RM                        libmetis64__Match_RM
 #define Match_SHEM                      libmetis64__Match_SHEM
 #define Match_2Hop                      libmetis64__Match_2Hop
@@ -49,6 +50,7 @@
 #define PruneGraph			libmetis64__PruneGraph
 
 /* contig.c */
+#define ComputeBFSOrdering  libmetis64__ComputeBFSOrdering
 #define FindPartitionInducedComponents  libmetis64__FindPartitionInducedComponents
 #define IsConnected                     libmetis64__IsConnected
 #define IsConnectedSubdomain            libmetis64__IsConnectedSubdomain
@@ -104,6 +106,7 @@
 #define InitSeparator			libmetis64__InitSeparator
 #define RandomBisection			libmetis64__RandomBisection
 #define GrowBisection			libmetis64__GrowBisection
+#define GrowBisectionNode2			libmetis64__GrowBisectionNode2
 #define McRandomBisection               libmetis64__McRandomBisection
 #define McGrowBisection                 libmetis64__McGrowBisection
 #define GrowBisectionNode		libmetis64__GrowBisectionNode
@@ -115,6 +118,8 @@
 /* kwayfm.c */
 #define Greedy_KWayOptimize		libmetis64__Greedy_KWayOptimize
 #define Greedy_KWayCutOptimize		libmetis64__Greedy_KWayCutOptimize
+#define Greedy_KWayEdgeStats		libmetis64__Greedy_KWayEdgeStats
+#define Greedy_KWayEdgeCutOptimize		libmetis64__Greedy_KWayEdgeCutOptimize
 #define Greedy_KWayVolOptimize          libmetis64__Greedy_KWayVolOptimize
 #define Greedy_McKWayCutOptimize        libmetis64__Greedy_McKWayCutOptimize
 #define Greedy_McKWayVolOptimize        libmetis64__Greedy_McKWayVolOptimize

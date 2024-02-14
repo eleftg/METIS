@@ -14,7 +14,7 @@ endforeach()
 # Link with the required libraries
 foreach(isize _i32 _i64)
   foreach(prog gpmetis ndmetis mpmetis m2gmetis graphchk cmpfillin)
-    target_link_libraries(${prog}${isize} metis${isize} GKlib "$<$<BOOL:${UNIX}>:m>")
+    target_link_libraries(${prog}${isize} metis${isize} gklib::gklib "$<$<BOOL:${UNIX}>:m>")
     list(APPEND all_exe ${prog}${isize})
   endforeach()
 endforeach()
