@@ -1,0 +1,25 @@
+set(metis_built_with_asan ${WITH_ASAN})
+set(metis_built_with_asan_pointer_compare ${WITH_ASAN_POINTER_COMPARE})
+set(metis_built_with_asan_pointer_subtract ${WITH_ASAN_POINTER_SUBTRACT})
+set(metis_built_with_lsan ${WITH_LSAN})
+
+set(_flags)
+if(metis_built_with_asan)
+    list(APPEND _flags -fsanitize=address)
+    if(metis_built_with_asan_pointer_compare)
+        list(APPEND _flags -fsanitize=pointer-compare)
+    endif()
+    if(metis_built_with_asan_pointer_subtract)
+        list(APPEND _flags -fsanitize=pointer-subtract)
+    endif()
+endif()
+if(metis_built_with_lsan)
+    list(APPEND _flags -fsanitize=leak)
+endif()
+set_property(TARGET METIS::i32 METIS::i64 APPEND PROPERTY
+    INTERFACE_COMPILE_OPTIONS "${_flags}"
+)
+set_property(TARGET METIS::i32 METIS::i64 APPEND PROPERTY
+    INTERFACE_LINK_OPTIONS "${_flags}"
+)
+unset(_flags)
