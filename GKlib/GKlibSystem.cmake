@@ -87,7 +87,6 @@ add_compile_options(
   "$<${lsan}:-fsanitize=leak>"
   "$<$<AND:$<C_COMPILER_ID:MSVC>,$<NOT:$<CONFIG:Debug>>>:/Ox>"
   "$<${gnu}:${_gnu_flags}>"
-  "$<${intel}:$<IF:${win},/QxHost,-xHost>>"
   "${deal_with_corrupt_pdb}"
 )
 add_link_options(
